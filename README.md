@@ -2,8 +2,9 @@
 
 Node.js / Express.js / MySql
 
-### MYSQL SCHEMA
+## MYSQL SCHEMA
 
+```
 CREATE DATABASE notes_app;
 USE notes_app;
 
@@ -18,11 +19,14 @@ INSERT INTO notes (title, contents)
 VALUES
 ('My First Note', 'A note about something'),
 ('My Second Note', 'A note about something else');
+```
 
-### Express & MYSQL (CRUD)
+## Express & MYSQL (CRUD)
 
+```
 SELECT All : getNotes
 SELECT(id) : getNote(id)
 CREATE : createNote(title, contents)
 UPDATE : updateNote(id, title, contents)
 DELETE : deleteNote(id)
+```

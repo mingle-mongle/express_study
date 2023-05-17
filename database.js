@@ -16,62 +16,128 @@ export async function getNotes() {
   const [rows] = await pool.query('SELECT * FROM notes');
   return rows;
 }
-export async function getNote(id) {
+export async function getNote(noteid) {
   const [rows] = await pool.query(
     `
   SELECT * 
   FROM notes
-  WHERE id = ?
+  WHERE noteid = ?
+  `,
+    [noteid]
+  );
+  return rows[0];
+}
+
+export async function createNote(userid, title, contents) {
+  const [result] = await pool.query(
+    `
+  INSERT INTO notes (userid, title, contents)
+  VALUES (?, ?, ?)
+  `,
+    [userid, title, contents]
+  );
+  const id = result.insertId;
+  return getNote(id);
+}
+
+export async function updateNote(noteid, title, contents) {
+  const [result] = await pool.query(
+    `UPDATE notes
+    SET title = ?,
+        contents = ?
+    WHERE noteid = ?`,
+    [title, contents, noteid]
+  );
+  return 'changedRows : ' + result.changedRows;
+}
+
+export async function deleteNote(noteid) {
+  await pool.query(
+    `
+  DELETE FROM notes
+  WHERE noteid = ?`,
+    [id]
+  );
+  return getNotes();
+}
+
+export async function getUsers() {
+  const [rows] = await pool.query(
+    `
+  SELECT * 
+  FROM users
+  `
+  );
+  return rows[0];
+}
+
+export async function getUser(username) {
+  const [rows] = await pool.query(
+    `
+  SELECT * 
+  FROM users
+  WHERE username = ?
+  `,
+    [username]
+  );
+  return rows[0];
+}
+
+export async function createUser(username, email, password) {
+  const [result] = await pool.query(
+    `
+  INSERT INTO users (username, email, password)
+  VALUES (?, ?, ?)
+  `,
+    [username, email, password]
+  );
+  const id = result.insertId;
+  return getUserId(id);
+}
+
+export async function getUserId(id) {
+  const [rows] = await pool.query(
+    `
+  SELECT * 
+  FROM users
+  WHERE userid = ?
   `,
     [id]
   );
   return rows[0];
 }
 
-export async function createNote(title, contents) {
+export async function updateUser(userid, username, email, password) {
   const [result] = await pool.query(
-    `
-  INSERT INTO notes (title, contents)
-  VALUES (?, ?)
-  `,
-    [title, contents]
-  );
-  const id = result.insertId;
-  return getNote(id);
-}
-
-export async function updateNote(id, title, contents) {
-  const [result] = await pool.query(
-    `UPDATE notes
-    SET title = ?,
-        contents = ?
-    WHERE id = ?`,
-    [title, contents, id]
+    `UPDATE users
+    SET username = ?,
+        email = ?,
+        password = ?
+    WHERE userid = ?`,
+    [username, email, password, userid]
   );
   return 'changedRows : ' + result.changedRows;
 }
 
-export async function deleteNote(id) {
+export async function deleteUserNotes(userid) {
   await pool.query(
     `
   DELETE FROM notes
-  WHERE id = ?`,
-    [id]
+  WHERE userid = ?`,
+    [userid]
   );
-  return getNotes();
+  return deleteUser(userid);
 }
-
-//jwt
-export async function loginNote(id) {
-  const [result] = await pool.query(
+// 위에쿼리 실행 후 deleteUser() 로 리턴을 해서
+// 밑에것도 실행되게하게 하고싶었습니다
+export async function deleteUser(userid) {
+  await pool.query(
     `
-    SELECT * FROM notes
-    WHERE id = ?
-    `,
-    [id]
+  DELETE FROM users
+  WHERE userid = ?`,
+    [userid]
   );
-  const token = jwt.sign({ id }, 'jwtSecretKey', { expiresIn: 300 });
-  return { result, token };
+  return getUsers();
 }
 
 // const result = await updateNote(5, 'hiiii', 'hiiii');
